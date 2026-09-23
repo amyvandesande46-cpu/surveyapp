@@ -1,4 +1,4 @@
-const CACHE = 'jpm-odour-v3';
+const CACHE = 'jpm-odour-v6';
 const ASSETS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-180.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -12,12 +12,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-  if (/tile\.openstreetmap\.org|arcgisonline\.com/.test(url.host)) {
+  if (/tile\.openstreetmap\.org|arcgisonline\.com|nominatim\.openstreetmap\.org/.test(url.host)) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
   if (url.origin === location.origin) {
-    // network-first so updates always show when online; cache is the offline fallback
     e.respondWith(
       fetch(e.request).then((res) => {
         const copy = res.clone();
